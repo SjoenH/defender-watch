@@ -217,7 +217,8 @@ read -rs "PO_USER?Pushover user key: "; echo
   </section>
 
   <section id="argv-guard">
-    <h2>Bruker du Claude Code? Installer argv-guard</h2>
+    <h2>Bruker du AI-agenter i terminalen? Installer argv-guard</h2>
+    <p>En agent som kjører kommandoer for deg, havner i den samme loggen som deg. Et token i agentens <code>curl</code> blir lagret hos arbeidsgiveren, og en kommando som ligner et angrep, utløser et varsel hos sikkerhetsteamet. argv-guard er laget for Claude Code foreløpig.</p>
     <p>argv-guard er en hook som stopper kommandoer før de kjører hvis de ville lagt en hemmelighet på kommandolinjen (<code>$TOKEN</code> i <code>curl -H</code>, <code>sshpass</code>, passord i URL-er) eller ligner et reverse shell (<code>/dev/tcp</code>, <code>nc -e</code>, <code>ssh -R</code>). Agenten får beskjed om hvordan den kan skrive kommandoen trygt i stedet.</p>
     <div class="cmd"><pre><code>mkdir -p ~/.claude/hooks
 curl -fsSL -o ~/.claude/hooks/argv-guard.py https://sjoenh.github.io/defender-watch/argv-guard.py
