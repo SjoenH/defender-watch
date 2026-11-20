@@ -22,8 +22,10 @@ import re
 import sys
 
 FIX = (
-    "Put the secret in a mode-600 file and pass the file (curl -H @file, curl --config -, "
-    "--password-stdin), or have a script read it from the environment/1Password itself. "
+    "For tools that read a token from the environment (gh, flyctl, docker, aws, SDKs), keep "
+    "op:// references in a .env and run `op run --env-file .env -- <tool>`: the value goes into "
+    "the tool's environment, never its argv, and op masks it in output. Otherwise put the secret "
+    "in a mode-600 file and pass the file (curl -H @file, curl --config -, --password-stdin). "
     "A builtin like printf can write it: printf 'Authorization: Bearer %s\\n' \"$(op read ...)\" > hdr"
 )
 
