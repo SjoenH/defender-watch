@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Defender Watch</title>
+<meta name="description" content="Se hva Microsoft Defender og Intune gjør med Macen din, og hva det koster i CPU, batteri og data som sendes ut.">
+<style>
+*, *::before, *::after { box-sizing: border-box; min-width: 0; }
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(oklch(0.985 0.004 250), oklch(0.16 0.01 250));
+  --surface: light-dark(oklch(1 0 none), oklch(0.21 0.012 250));
+  --fg: light-dark(oklch(0.2 0.01 250), oklch(0.95 0.005 250));
+  --muted: color-mix(in oklch, var(--fg) 62%, var(--bg));
+  --line: color-mix(in oklch, var(--fg) 12%, transparent);
+  --accent: light-dark(oklch(0.52 0.17 255), oklch(0.74 0.14 255));
+  --accent-fg: light-dark(oklch(1 0 none), oklch(0.16 0.01 250));
+  --code-bg: light-dark(oklch(0.96 0.006 250), oklch(0.13 0.01 250));
+  --radius: 0.75rem;
+  --text-h1: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  --space-section: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+  scrollbar-gutter: stable;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--fg);
+  font: 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+h1, h2, h3 { text-wrap: balance; line-height: 1.15; margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; }
+
+.page {
+  --gutter: 1rem;
+  --content: 46rem;
+  --breakout: 68rem;
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--gutter), 1fr)
+    [breakout-start] minmax(0, calc((var(--breakout) - var(--content)) / 2))
+    [content-start] min(100% - var(--gutter) * 2, var(--content)) [content-end]
+    minmax(0, calc((var(--breakout) - var(--content)) / 2)) [breakout-end]
+    minmax(var(--gutter), 1fr) [full-end];
+  row-gap: var(--space-section);
+  padding-block: var(--space-section);
+}
+.page > * { grid-column: content; }
+.page > .breakout { grid-column: breakout; }
+
+header { display: grid; gap: 1rem; }
+.eyebrow { color: var(--accent); font-weight: 600; letter-spacing: 0.02em; margin: 0; }
+h1 { font-size: var(--text-h1); letter-spacing: -0.02em; }
+.lede { font-size: 1.2rem; color: var(--muted); margin: 0; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-block-start: 0.5rem; }
+.button {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.8rem 1.3rem; border-radius: 999px;
+  background: var(--accent); color: var(--accent-fg);
+  font-weight: 600; text-decoration: none;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.button:active { background: color-mix(in oklch, var(--accent), black 18%); }
+.button.secondary { background: transparent; color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+.button.secondary:active { background: color-mix(in oklch, var(--fg) 12%, transparent); }
+.meta { color: var(--muted); font-size: 0.9rem; }
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { background: color-mix(in oklch, var(--accent), black 10%); }
+  .button.secondary:hover { background: color-mix(in oklch, var(--fg) 8%, transparent); }
+  .copy:hover { background: color-mix(in oklch, var(--fg) 10%, transparent); }
+}
+
+.shot {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: 0 1.5rem 3rem -1.5rem color-mix(in oklch, black 45%, transparent);
+  overflow: clip;
+  background: var(--surface);
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 1.5rem;
+}
+.gallery figure { margin: 0; display: grid; gap: 0.5rem; }
+.gallery figcaption { color: var(--muted); font-size: 0.9rem; }
+
+section { display: grid; gap: 1rem; scroll-margin-block-start: 1.5rem; }
+h2 { font-size: 1.5rem; }
+section > p { margin: 0; }
+
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: 1rem; padding: 0; margin: 0; list-style: none; }
+.features li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem; }
+.features h3 { font-size: 1.05rem; margin-block-end: 0.35rem; }
+.features p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+ol.steps { margin: 0; padding-inline-start: 1.25rem; display: grid; gap: 1rem; }
+ol.steps li::marker { color: var(--muted); font-weight: 600; }
+ol.steps p { margin: 0 0 0.5rem; }
+
+.cmd { position: relative; }
+.cmd pre {
+  margin: 0; padding: 0.9rem 3.5rem 0.9rem 1rem;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 0.6rem;
+  overflow-x: auto; white-space: pre;
+}
+.copy {
+  position: absolute; inset-block-start: 0.45rem; inset-inline-end: 0.45rem;
+  font: inherit; font-size: 0.8rem; padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line); border-radius: 0.4rem;
+  background: var(--surface); color: var(--fg); cursor: pointer;
+}
+.copy:active { background: color-mix(in oklch, var(--fg) 16%, transparent); }
+
+.note {
+  border-inline-start: 3px solid var(--accent);
+  background: color-mix(in oklch, var(--accent) 8%, transparent);
+  padding: 1rem 1.2rem; border-radius: 0 0.6rem 0.6rem 0;
+}
+.note p { margin: 0; }
+.note p + p { margin-block-start: 0.6rem; }
+
+footer { color: var(--muted); font-size: 0.9rem; border-block-start: 1px solid var(--line); padding-block-start: 1.5rem; }
+footer p { margin: 0; }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <p class="eyebrow">Defender Watch · for macOS</p>
+    <h1>Hva gjør jobb-Macen din, og hva ser arbeidsgiveren?</h1>
+    <p class="lede">Defender Watch viser hva Microsoft Defender for Endpoint og Intune gjør på Macen din: minutt for minutt det siste døgnet, hva det koster i CPU og batteri, hva som sendes til Microsoft, og hva arbeidsgiveren din kan gjøre med maskinen. Du får også varsel med en gang Defender reagerer på noe.</p>
+    <div class="actions">
+      <a class="button" href="https://github.com/SjoenH/defender-watch/releases/latest/download/defender-watch-macos.dmg">Last ned for Mac</a>
+      <a class="button secondary" href="https://github.com/SjoenH/defender-watch">Les koden</a>
+      <span class="meta">Apple Silicon og Intel · signert og notarisert · <span id="version">versjon __VERSION__</span> · <a href="https://github.com/SjoenH/defender-watch/releases/latest/download/SHA256SUMS">SHA-256</a></span>
+    </div>
+  </header>
+
+  <img class="shot breakout" src="screenshot.png" alt="Tidslinjen: alt Defender og Intune skrev til systemloggen det siste døgnet, stablet etter type, med et rødt merke der Defender fant noe og CPU-bruken under" width="2000" height="1520">
+
+  <section>
+    <h2>Hva det viser</h2>
+    <ul class="features">
+      <li><h3>Oversikt</h3><p>Ett blikk: er Macen beskyttet, hvor mye Defender bruker av maskinen akkurat nå, hvor ofte den snakker med Microsoft, og om noe er funnet.</p></li>
+      <li><h3>Tidslinje</h3><p>De siste 24 timene, minutt for minutt: alt Defender og Intune skrev til systemloggen, stablet etter type, med CPU under og funn, skanninger, definisjonsoppdateringer og Intune-innsjekkinger som merker. Dra for å zoome, ⌘-scroll eller knip, filtrer på type, og klikk på en kolonne for å se de faktiske linjene og hvilken prosess som skrev dem.</p></li>
+      <li><h3>Ytelse</h3><p>Går Macen tregere? En dom med ett ord, CPU per Defender-prosess de siste minuttene, et anslag over hva det koster i batteri, og stedene der Defenders egen logg sier at den bremser.</p></li>
+      <li><h3>Personvern</h3><p>Hva Microsoft får vite: innsjekkinger mot skyen, telemetri-pakker, og regelen som bestemmer om mistenkelige filer kan lastes opp automatisk.</p></li>
+      <li><h3>Beskyttelse</h3><p>Funn, karantene og skanninger, slik <code>mdatp</code> rapporterer dem, pluss innstillingene: manipuleringsbeskyttelse, atferdsovervåking, nettverksbeskyttelse, DLP, enhetsmerker og oppdateringskanal. Atferdsfunn (<code>Behavior:…</code>) gjelder noe en kommando gjorde, og dashbordet sier rett ut at sikkerhetsteamet blir varslet.</p></li>
+      <li><h3>Administrasjon</h3><p>Profilene Intune har installert, og hva de lar arbeidsgiveren gjøre, med vanlige ord: fjernstyre og slette Macen, holde gjenopprettingsnøkkelen til disken, gi full disktilgang uten å spørre deg, filtrere nettverkstrafikken, legge inn egne rotsertifikater og mer. Også hvor Defender rapporterer, og i hvilken dataregion.</p></li>
+      <li><h3>Aktivitetslogg</h3><p>Hver linje Defender og Intune skriver til systemloggen, etter hvert som den kommer.</p></li>
+      <li><h3>Varsel med en gang</h3><p>En bakgrunnsjobb sjekker Defender hvert 30. sekund. Ved nye funn får du et varsel og en dialog som blir stående, også når dashbordet er lukket. Pushover til telefonen hvis du vil. <a href="#installer">Slå det på</a>.</p></li>
+    </ul>
+  </section>
+
+  <section class="breakout">
+    <h2>Slik ser det ut</h2>
+    <div class="gallery">
+      <figure><img class="shot" src="overview.png" alt="Oversikten: om Macen er beskyttet, hva Defender bruker av CPU og batteri, hvor ofte den snakker med Microsoft, og hva den har gjort de siste 3 timene" width="2000" height="1520" loading="lazy"><figcaption>Oversikt: dommen, kostnaden og hva den har holdt på med.</figcaption></figure>
+      <figure><img class="shot" src="timeline-zoomed.png" alt="Tidslinjen zoomet inn på en halvtime, med én kolonne per minutt og CPU under" width="2000" height="1520" loading="lazy"><figcaption>Tidslinje, zoomet inn: én kolonne per minutt, CPU under.</figcaption></figure>
+      <figure><img class="shot" src="management.png" alt="Administrasjon-siden: hvordan Macen er innrullert i Intune, hvor mange profiler som er låst, og hva hver av dem gir arbeidsgiveren tilgang til" width="2000" height="1520" loading="lazy"><figcaption>Administrasjon: hva Intune lar arbeidsgiveren gjøre.</figcaption></figure>
+      <figure><img class="shot" src="protection.png" alt="Beskyttelse-siden: helsesjekker, Defenders innstillinger og funn i karantene" width="2000" height="1520" loading="lazy"><figcaption>Beskyttelse: helse, innstillinger og funn.</figcaption></figure>
+    </div>
+    <p class="meta">Bildene er laget med demodata (<code>--demo</code>), ikke fra en ekte Mac.</p>
+  </section>
+
+  <section id="installer">
+    <h2>Installer</h2>
+    <ol class="steps">
+      <li>
+        <p>Den enkleste veien er Terminal. Da havner programmet i <code>~/.local/bin</code>:</p>
+        <div class="cmd"><pre><code>curl -fsSL https://sjoenh.github.io/defender-watch/install.sh | sh</code></pre><button class="copy" type="button">Kopier</button></div>
+      </li>
+      <li>
+        <p>Har du lastet ned med knappen over? Disk-bildet er signert og notarisert av Apple, med billetten stiftet på, så macOS åpner det uten advarsel, også uten nett. Dobbeltklikk <code>defender-watch</code> i vinduet for å prøve, eller legg det i <code>~/.local/bin</code> så det er der neste gang:</p>
+        <div class="cmd"><pre><code>hdiutil attach -quiet ~/Downloads/defender-watch-macos.dmg
+mkdir -p ~/.local/bin &amp;&amp; cp "/Volumes/Defender Watch/defender-watch" ~/.local/bin/
+hdiutil detach -quiet "/Volumes/Defender Watch"
+~/.local/bin/defender-watch</code></pre><button class="copy" type="button">Kopier</button></div>
+      </li>
+      <li>
+        <p>Få varsel med en gang Defender reagerer på noe, også når dashbordet er lukket. Dette legger inn en bakgrunnsjobb som sjekker hvert 30. sekund og viser et varsel som blir stående til du lukker det. Funnene som allerede finnes, blir ikke varslet. <code>--uninstall-notify</code> fjerner den igjen:</p>
+        <div class="cmd"><pre><code>defender-watch --install-notify</code></pre><button class="copy" type="button">Kopier</button></div>
+        <p>Vil du ha varselet på telefonen også? Legg Pushover-nøklene i en fil som bare du kan lese. Nøklene skrives med <code>printf</code>, så de havner aldri på en kommandolinje:</p>
+        <div class="cmd"><pre><code>mkdir -p ~/.config/defender-watch
+read -rs "PO_TOKEN?Pushover app token: "; echo
+read -rs "PO_USER?Pushover user key: "; echo
+(umask 077; printf 'form-string = "token=%s"\nform-string = "user=%s"\n' "$PO_TOKEN" "$PO_USER" &gt; ~/.config/defender-watch/pushover.conf)</code></pre><button class="copy" type="button">Kopier</button></div>
+      </li>
+      <li>
+        <p>Vil du bare se hvordan det ser ut, uten Defender på maskinen:</p>
+        <div class="cmd"><pre><code>defender-watch --demo</code></pre><button class="copy" type="button">Kopier</button></div>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Hva det kan og ikke kan se</h2>
+    <p>Alt leses lokalt på Macen, uten administratortilgang: prosessdata, systemloggen (<code>log show</code> og <code>log stream</code>), <code>mdatp</code>, og profilene og innstillingene Intune har lagt inn (de samme som under Systeminnstillinger › Enhetsadministrasjon). Ingenting av det dashbordet viser forlater maskinen.</p>
+    <div class="note">
+      <p><strong>Et stille dashbord betyr ikke en stille dag.</strong> EDR-delen av Defender sender mer til arbeidsgiveren din enn den lokale loggen viser: hver prosess som starter, med <em>hele kommandolinjen</em>, i tillegg til fil-, innloggings- og nettverkshendelser.</p>
+      <p>Hemmeligheter som står på en kommandolinje blir altså registrert. Bruk <code>curl -H @fil</code>, <code>curl --config -</code> eller et skript som leser hemmeligheten selv.</p>
+    </div>
+  </section>
+
+  <section id="argv-guard">
+    <h2>Bruker du Claude Code? Installer argv-guard</h2>
+    <p>argv-guard er en hook som stopper kommandoer før de kjører hvis de ville lagt en hemmelighet på kommandolinjen (<code>$TOKEN</code> i <code>curl -H</code>, <code>sshpass</code>, passord i URL-er) eller ligner et reverse shell (<code>/dev/tcp</code>, <code>nc -e</code>, <code>ssh -R</code>). Agenten får beskjed om hvordan den kan skrive kommandoen trygt i stedet.</p>
+    <div class="cmd"><pre><code>mkdir -p ~/.claude/hooks
+curl -fsSL -o ~/.claude/hooks/argv-guard.py https://sjoenh.github.io/defender-watch/argv-guard.py
+curl -fsSL -o ~/.claude/hooks/argv-guard-test.py https://sjoenh.github.io/defender-watch/argv-guard-test.py
+python3 ~/.claude/hooks/argv-guard-test.py</code></pre><button class="copy" type="button">Kopier</button></div>
+    <p>Legg den så inn under <code>hooks</code> i <code>~/.claude/settings.json</code>:</p>
+    <div class="cmd"><pre><code>"PreToolUse": [
+  {
+    "matcher": "Bash",
+    "hooks": [{ "type": "command", "command": "python3 \"$HOME/.claude/hooks/argv-guard.py\"", "timeout": 5 }]
+  }
+]</code></pre><button class="copy" type="button">Kopier</button></div>
+  </section>
+
+  <footer>
+    <p>Kun macOS. Åpen kildekode (MIT) på <a href="https://github.com/SjoenH/defender-watch">GitHub</a>: les koden før du kjører den, og se at nedlastingen er bygget fra en tagget commit under <a href="https://github.com/SjoenH/defender-watch/releases">Releases</a>. Laget av Sjøen Solutions.</p>
+  </footer>
+</main>
+<script>
+for (const button of document.querySelectorAll('.copy')) {
+  button.addEventListener('click', async () => {
+    const text = button.parentElement.querySelector('code').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      button.textContent = 'Kopiert';
+      setTimeout(() => { button.textContent = 'Kopier'; }, 1500);
+    } catch { button.textContent = 'Marker og kopier'; }
+  });
+}
+</script>
+</body>
+</html>

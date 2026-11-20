@@ -1,0 +1,10 @@
+/target
+/out
+*.png
+!/site/*.png
+*.mp4
+/target-dist
+/site/download
+/site/.dokploy-app-id
+/site/.deploy.env
+__pycache__/

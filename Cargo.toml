@@ -1,0 +1,31 @@
+[package]
+name = "defender-watch"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "What Microsoft Defender and Intune are doing to your Mac, and what it costs"
+repository = "https://github.com/SjoenH/defender-watch"
+
+[dependencies]
+serde_json = "1"
+sysinfo = "0.40"
+rune = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d", features = ["keys-overlay"] }
+
+# Rune's own [patch.crates-io] doesn't propagate to apps that depend on it, so patch the
+# same vendored crates, from the same rune rev.
+[patch.crates-io]
+wgpu-hal = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+winit = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+sctk-adwaita = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+parley_engine = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+accesskit_windows = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+accesskit_macos = { git = "https://github.com/anomalyco/rune", rev = "8fbc395190dbff430db9d9fc515bb6ac8cc7d13d" }
+
+[lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+unused_must_use = "deny"
+
+[lints.clippy]
+dbg_macro = "deny"
+expect_used = "warn"
+unwrap_used = "warn"

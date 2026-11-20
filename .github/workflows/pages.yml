@@ -1,0 +1,41 @@
+# Publish site/ to GitHub Pages, with the latest release's version stamped into the page.
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stamp the latest release into the page
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName,targetCommitish \
+            --jq '.tagName' 2>/dev/null || echo "ingen ennå")"
+          sed -i "s/__VERSION__/${version}/" site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
