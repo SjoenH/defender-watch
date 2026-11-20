@@ -213,7 +213,6 @@ read -rs "PO_USER?Pushover user key: "; echo
     <div class="note">
       <p><strong>Et stille dashbord betyr ikke en stille dag.</strong> EDR-delen av Defender sender mer til arbeidsgiveren din enn den lokale loggen viser: hver prosess som starter, med <em>hele kommandolinjen</em>, i tillegg til fil-, innloggings- og nettverkshendelser.</p>
       <p>Hemmeligheter som står på en kommandolinje blir altså registrert. Bruk <code>curl -H @fil</code>, <code>curl --config -</code> eller et skript som leser hemmeligheten selv.</p>
-      <p>Bruker du 1Password, kan <code>.env</code>-filen holde referanser i stedet for verdier (<code>GITHUB_TOKEN=op://Privat/GitHub/token</code>), og <code>op run --env-file .env -- flyctl deploy</code> gir programmet hemmeligheten i miljøet, ikke på kommandolinjen. Det virker for verktøy som leser tokenet selv, som <code>gh</code>, <code>flyctl</code>, <code>docker</code> og <code>aws</code>. Skriver du <code>$TOKEN</code> inn i en kommando, havner den likevel i loggen.</p>
     </div>
   </section>
 
